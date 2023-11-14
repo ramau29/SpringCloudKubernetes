@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name="users")
-public class User {
+public class User { // test comment
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
