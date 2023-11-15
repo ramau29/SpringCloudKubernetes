@@ -14,4 +14,6 @@ public interface UserService {
     Optional<User> getByEmail(String email);
     boolean existsByEmail(String email);
 
+    List<User> listByIds(Iterable<Long> ids);
+
 }

@@ -47,4 +47,10 @@ public class UserServiceImpl implements UserService{
     public boolean existsByEmail(String email) {
         return repository.existsByEmail(email);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> listByIds(Iterable<Long> ids) {
+        return (List<User>) repository.findAllById(ids);
+    }
 }

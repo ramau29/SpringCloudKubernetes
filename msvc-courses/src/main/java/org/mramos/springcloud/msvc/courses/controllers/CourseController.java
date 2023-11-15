@@ -1,7 +1,9 @@
 package org.mramos.springcloud.msvc.courses.controllers;
 
+import feign.FeignException;
 import jakarta.validation.Valid;
-import org.mramos.springcloud.msvc.courses.entity.Course;
+import org.mramos.springcloud.msvc.courses.models.User;
+import org.mramos.springcloud.msvc.courses.models.entity.Course;
 import org.mramos.springcloud.msvc.courses.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class CourseController {
@@ -26,8 +25,8 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> courseDetails(@PathVariable Long id){
-        Optional<Course> optCourse = service.byId(id);
+    public ResponseEntity<?> courseDetails(@PathVariable Long id) {
+        Optional<Course> optCourse = service.byIdWithUsers(id); //service.byId(id);
         if(optCourse.isPresent()){
             return ResponseEntity.ok(optCourse.get());
         }
@@ -65,6 +64,65 @@ public class CourseController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/assign-user/{courseId}")
+    public ResponseEntity<?> assignUser(@RequestBody User user, @PathVariable Long courseId){
+        Optional<User> optionalUser;
+        try {
+            optionalUser = service.assignUser(user, courseId);
+        } catch (FeignException fe) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("message", "Unable to create user or there is a communication " +
+                            "error: " + fe.getMessage()));
+        }
+        if (optionalUser.isPresent()){
+            return ResponseEntity.status(HttpStatus.CREATED).body(optionalUser.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/create-user/{courseId}")
+    public ResponseEntity<?> createUser(@RequestBody User user, @PathVariable Long courseId){
+        Optional<User> optionalUser;
+        try {
+            optionalUser = service.createUser(user, courseId);
+        } catch (FeignException fe) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("message", "User does not exists by id or there is a communication " +
+                            "error: " + fe.getMessage()));
+        }
+        if (optionalUser.isPresent()){
+            return ResponseEntity.status(HttpStatus.CREATED).body(optionalUser.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/remove-user/{courseId}")
+    public ResponseEntity<?> removeUser(@RequestBody User user, @PathVariable Long courseId){
+        Optional<User> optionalUser;
+        try {
+            optionalUser = service.removeUser(user, courseId);
+        } catch (FeignException fe) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("message", "User does not exists by id or there is a communication " +
+                            "error: " + fe.getMessage()));
+        }
+        if (optionalUser.isPresent()){
+            return ResponseEntity.status(HttpStatus.OK).body(optionalUser.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     private static ResponseEntity<Map<String, String>> validate(BindingResult result) {
         Map<String, String> errors = new HashMap<>();
