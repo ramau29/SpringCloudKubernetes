@@ -18,4 +18,6 @@ public interface CourseService {
     Optional<User> createUser(User user, Long courseId);
     Optional<User> removeUser(User user, Long courseId);
 
+    void deleteCourseUserById(Long id);
+
 }
