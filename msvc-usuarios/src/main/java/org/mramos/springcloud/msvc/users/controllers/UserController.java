@@ -18,8 +18,8 @@ public class UserController {
     private UserService service;
 
     @GetMapping
-    public List<User> listAll(){
-        return service.listAll();
+    public Map<String, List<User>> listAll(){
+        return Collections.singletonMap("users", service.listAll());
     }
 
     @GetMapping("/{id}")
