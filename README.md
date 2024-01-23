@@ -49,3 +49,28 @@ Levantar un contenedor especificando un nombre y asi poder hacer docker start, s
 &nbsp;
 ![img_2.png](img_2.png)
 
+
+## Comunicacion entre contenedores
+Creamos las imagenes nuevamente  
+```docker build -t courses . -f ./msvc-courses/Dockerfile```  
+```docker build -t usuarios . -f ./msvc-usuarios/Dockerfile```  
+Creamos la red  
+```docker network create spring```  
+Listamos las redes  
+```docker network ls```  
+Levantamos el microservicio usuarios en la red 'spring'  
+```docker run -p 8001:8001 -d --rm --name msvc-usuarios --network spring usuarios```  
+```docker run -p 8002:8002 -d --rm --name msvc-courses --network spring courses```  
+
+
+## DOCKERIZAMOS LA BASE MYSQL
+Descargamos la imagen  
+```docker pull mysql:8```  
+Levantamos el contenedor  
+```docker run -d -p 3307:3306 --name mysql8 --network spring -e MYSQL_ROOT_PASSWORD=Passw0rd -e MYSQL_DATABASE=msvc_usersMYSQL:8```  
+
+## Levantamos las DBs usando Volumenes
+ ```docker run -d -p 3307:3306 --name mysql8 --network spring -e MYSQL_ROOT_PASSWORD=Passw0rd -e MYSQL_DATABASE=msvc_users -v data-mysql:/var/lib/mysql --restart=always mysql:8```  
+ ```docker run -d -p 5532:5432 --name postgres14 --network spring -e POSTGRES_PASSWORD=sasa -e POSTGRES_DB=msvc_courses -v data-postgres:/bar/lib/postgresql/data --restart=always postgres:14-alpine```  
+
+
